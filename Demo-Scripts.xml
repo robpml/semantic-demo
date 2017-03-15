@@ -1,0 +1,295 @@
+<export><workspace name="Demo-Scripts"><query name="Delete ALL Data" focus="false" active="true" content-source="as:11142173024205314193:" mode="xquery">
+for $i in fn:doc()/fn:base-uri(.)
+return xdmp:document-delete($i)
+</query><query name="Insert_Ontology" focus="false" active="true" content-source="as:11142173024205314193:" mode="xquery">xquery version "1.0-ml";
+
+import module namespace sem = "http://marklogic.com/semantics" 
+      at "/MarkLogic/semantics.xqy";
+declare namespace rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+declare namespace dc = "http://purl.org/dc/elements/1.1/";
+declare namespace v="http://www.w3.org/2006/vcard/";
+
+
+sem:rdf-insert(
+  sem:rdf-parse("
+@prefix cnt: &lt;https://schema.hsbc-demo.com/ns/content/&gt; .
+@prefix ctx: &lt;https://schema.hsbc-demo.com/ns/context/&gt; .
+@prefix rdf:  &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix raf: &lt;https://schema.hsbc-demo.com/ns/raf/&gt;.
+@prefix skos: &lt;http://www.w3.org/2004/02/skos/core#&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix schema: &lt;http://schema.org/&gt; .
+@prefix dcterms: &lt;http://purl.org/dc/terms/&gt; .
+@prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
+
+&lt;https://data.hsbc-demo.com/ontology/flows&gt; raf:latest 1 .
+
+GRAPH &lt;https://data.hsbc-demo.com/graph/ontology/flows/1&gt; {
+
+#
+cnt:hasUri a owl:ObjectProperty ;	
+	rdfs:label 'has Uri' .
+
+# Domain
+cnt:Domain a rdfs:Class ;
+    rdfs:label 'Domain' . 
+
+cnt:DomainID a owl:ObjectProperty ;
+	rdfs:domain cnt:Domain ;	
+	rdfs:label 'Domain ID' .
+
+cnt:DomainName a owl:ObjectProperty ;
+	rdfs:domain cnt:Domain ;	
+	rdfs:label 'Domain Name' .
+
+cnt:DomainKey a owl:ObjectProperty ;
+	rdfs:domain cnt:Domain ;	
+	rdfs:label 'Domain Key';
+    cnt:isIdentifiedBy cnt:DomainID .
+    
+       
+# System
+cnt:System a rdfs:Class ;
+    rdfs:label 'System' . 
+
+cnt:SystemID a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'System ID' .
+
+cnt:SystemName a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'System Name' .
+
+cnt:SystemKey a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'System Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:SystemID .
+ 
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'belongs to' .
+
+
+# Application
+cnt:Application a rdfs:Class ;
+    rdfs:label 'Application' . 
+
+cnt:ApplicationID a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'Application ID' .
+
+cnt:ApplicationName a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'Application Name' .
+
+cnt:ApplicationKey a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'Application Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:SystemID ;
+    cnt:isIdentifiedBy cnt:ApplicationID .
+ 
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'belongs to' .
+
+}
+
+ "
+    ,
+
+  "trig")
+  )  
+   
+</query><query name="Delete_Ontology" focus="false" active="true" content-source="as:11142173024205314193:" mode="xquery">xquery version "1.0-ml";
+
+for $graph in ("http://marklogic.com/semantics#default-graph", "https://data.hsbc-demo.com/graph/ontology/flows/1")
+for $i in fn:collection($graph)/fn:base-uri(.)
+return xdmp:document-delete($i)</query><query name="Enrich Data" focus="false" active="true" content-source="as:11142173024205314193:" mode="xquery">xquery version "1.0-ml";
+
+declare namespace cnt = "https://schema.hsbc-demo.com/ns/content/";
+
+declare function local:enrich-application($doc as element(), $uri as xs:string, $root-node as xs:string)
+{
+ let $uniqueKey as xs:string := $doc/ApplicationID
+ let $contentType := 'https://schema.hsbc-demo.com/ns/content/Application'
+ let $subject as xs:string := fn:concat($contentType, "/" , $uniqueKey)
+
+ let $sysUniqueKey as xs:string := $doc/SystemID
+ let $sysContentType := 'https://schema.hsbc-demo.com/ns/content/System'
+ let $sysSubject as xs:string := fn:concat($sysContentType, "/" , $sysUniqueKey)
+  
+ return
+    &lt;sem:triples&gt; {    
+      sem:triple( 
+        sem:iri($subject), 
+        sem:iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+        sem:iri($contentType)
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasApplicationKey' ), 
+        xs:string($uniqueKey)
+      ),    
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasUri' ), 
+        $uri
+        ),   
+      sem:triple(
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/belongsTo' ), 
+        sem:iri($sysSubject)
+        )                      
+        
+    }
+    &lt;/sem:triples&gt;
+};
+
+declare function local:enrich-system($doc as element(), $uri as xs:string, $root-node as xs:string)
+{
+ let $uniqueKey as xs:string := $doc/SystemID
+ let $contentType := 'https://schema.hsbc-demo.com/ns/content/System'
+ let $subject as xs:string := fn:concat($contentType, "/" , $uniqueKey)
+ 
+ let $domUniqueKey as xs:string := $doc/DomainID
+ let $domContentType := 'https://schema.hsbc-demo.com/ns/content/Domain'
+ let $domSubject as xs:string := fn:concat($domContentType, "/" , $domUniqueKey)
+ return
+    &lt;sem:triples&gt; {    
+      sem:triple( 
+        sem:iri($subject), 
+        sem:iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+        sem:iri($contentType)
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasSystemKey' ), 
+        xs:string($uniqueKey)
+      ),    
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasUri' ), 
+        $uri
+        ),
+      sem:triple(
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/belongsTo' ), 
+        sem:iri($domSubject)
+        )                   
+    }
+    &lt;/sem:triples&gt;
+};
+declare function local:enrich-domain($doc as element(), $uri as xs:string, $root-node as xs:string)
+{
+ let $uniqueKey as xs:string := $doc/DomainID
+ let $contentType := 'https://schema.hsbc-demo.com/ns/content/Domain'
+ let $subject as xs:string := fn:concat($contentType, "/" , $uniqueKey)
+ return
+    &lt;sem:triples&gt; {    
+      sem:triple( 
+        sem:iri($subject), 
+        sem:iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+        sem:iri($contentType)
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasDomainKey' ), 
+        xs:string($uniqueKey)
+      ),    
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasUri' ), 
+        $uri
+        )   
+    }
+    &lt;/sem:triples&gt;
+};
+
+declare function local:enrich($doc as element(), $uri as xs:string, $root-node as xs:string)
+{
+    typeswitch($doc)
+      case (element(Domain))
+      return 
+       &lt;cnt:envelope&gt;{
+          local:enrich-domain($doc, $uri, $root-node),
+          &lt;cnt:source&gt;{$doc}&lt;/cnt:source&gt;
+        }&lt;/cnt:envelope&gt;
+      case element(System)
+      return
+       &lt;cnt:envelope&gt;{
+          local:enrich-system($doc, $uri, $root-node),
+          &lt;cnt:source&gt;{$doc}&lt;/cnt:source&gt;
+        }&lt;/cnt:envelope&gt;      
+      case element(Application)
+      return
+       &lt;cnt:envelope&gt;{
+          local:enrich-application($doc, $uri, $root-node),
+          &lt;cnt:source&gt;{$doc}&lt;/cnt:source&gt;
+        }&lt;/cnt:envelope&gt;      
+      case element(cnt:envelope)
+      return
+          local:enrich($doc/cnt:source/element(), $uri, $root-node)
+      default
+      return "Type not identified"
+ 
+};
+
+for $doc in fn:collection("sourceData")/node()
+let $root-node := (fn:local-name($doc))
+let $enriched-node := local:enrich($doc, fn:base-uri($doc), $root-node)
+return 
+  if($enriched-node = "Type not identified")
+  then ()
+  else 
+    xdmp:node-replace($doc, $enriched-node)
+    
+
+    
+  
+</query><query name="Query_BelongsTo" focus="true" active="true" content-source="as:11142173024205314193:" mode="sparql">prefix rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+prefix rdfs:&lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+
+select ?s  ?o
+where {
+    &lt;https://schema.hsbc-demo.com/ns/content/Application/A0001&gt;  &lt;https://schema.hsbc-demo.com/ns/content/belongsTo&gt;+ ?o  
+}
+</query><query name="Query 3" focus="false" active="false" content-source="as:11142173024205314193:" mode="sparql">prefix rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+prefix rdfs:&lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+
+select ?s ?p  ?o
+where {
+    &lt;https://schema.hsbc-demo.com/ns/content/Application/S00002&gt;  &lt;https://schema.hsbc-demo.com/ns/content/belongsTo&gt; ?o  
+}
+</query><query name="Test" focus="false" active="true" content-source="as:11142173024205314193:" mode="sparql">prefix rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+prefix rdfs:&lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+
+select ?s
+where {
+  VALUES ( ?o) {("Domain")}
+  {
+    ?s  rdf:type rdfs:Class;
+        rdfs:label ?o.    
+  }
+}
+</query><query name="Query 5" focus="false" active="true" content-source="as:11142173024205314193:" mode="xquery">declare function local:query-ontology($doc as element(), $uri as xs:string, $root-node as xs:string)
+{
+let $params := 
+   map:new(map:entry("object", $root-node))
+return 
+  sem:sparql("
+  prefix rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+  prefix rdfs:&lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+  
+  select ?s
+  where {
+    {
+      ?s  rdf:type rdfs:Class;
+          rdfs:label "|| $root-node ||"
+    }
+  }"
+  )
+  
+};</query></workspace></export>

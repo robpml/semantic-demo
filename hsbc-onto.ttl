@@ -1,0 +1,84 @@
+@prefix cnt: <https://schema.hsbc-demo.com/ns/content/> .
+@prefix ctx: <https://schema.hsbc-demo.com/ns/context/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix raf: <https://schema.hsbc-demo.com/ns/raf/>.
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<https://data.hsbc-demo.com/ontology/flows> raf:latest 1 .
+
+GRAPH <https://data.hsbc-demo.com/graph/ontology/flows/1> {
+
+#
+cnt:hasUri a owl:ObjectProperty ;	
+	rdfs:label 'has Uri' .
+
+# Domain
+cnt:Domain a rdfs:Class ;
+    rdfs:label 'Domain' . 
+
+cnt:DomainID a owl:ObjectProperty ;
+	rdfs:domain cnt:Domain ;	
+	rdfs:label 'Domain ID' .
+
+cnt:DomainName a owl:ObjectProperty ;
+	rdfs:domain cnt:Domain ;	
+	rdfs:label 'Domain Name' .
+
+cnt:DomainKey a owl:ObjectProperty ;
+	rdfs:domain cnt:Domain ;	
+	rdfs:label 'Domain Key';
+    cnt:isIdentifiedBy cnt:DomainID .
+    
+       
+# System
+cnt:System a rdfs:Class ;
+    rdfs:label 'System' . 
+
+cnt:SystemID a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'System ID' .
+
+cnt:SystemName a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'System Name' .
+
+cnt:SystemKey a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'System Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:SystemID .
+ 
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:domain cnt:System ;	
+	rdfs:label 'belongs to' .
+
+
+# Application
+cnt:Application a rdfs:Class ;
+    rdfs:label 'Application' . 
+
+cnt:ApplicationID a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'Application ID' .
+
+cnt:ApplicationName a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'Application Name' .
+
+cnt:ApplicationKey a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'Application Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:SystemID ;
+    cnt:isIdentifiedBy cnt:ApplicationID .
+ 
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:Application cnt:Application ;	
+	rdfs:label 'belongs to' .
+
+}
