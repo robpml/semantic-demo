@@ -17,9 +17,19 @@ GRAPH <https://data.hsbc-demo.com/graph/ontology/flows/1> {
 cnt:hasUri a owl:ObjectProperty ;	
 	rdfs:label 'has Uri' .
 
+cnt:hasPrimaryKey a owl:ObjectProperty ;	
+	rdfs:label 'has Primary Key' .
+
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:label 'belongs to' .
+
 # Domain
 cnt:Domain a rdfs:Class ;
     rdfs:label 'Domain' . 
+
+cnt:System a rdfs:Class ;
+    rdfs:label 'Domain' ;
+	cnt:hasPrimaryKey cnt:DomainID .
 
 cnt:DomainID a owl:ObjectProperty ;
 	rdfs:domain cnt:Domain ;	
@@ -37,7 +47,8 @@ cnt:DomainKey a owl:ObjectProperty ;
        
 # System
 cnt:System a rdfs:Class ;
-    rdfs:label 'System' . 
+    rdfs:label 'System' ;
+	cnt:hasPrimaryKey cnt:SystemID .
 
 cnt:SystemID a owl:ObjectProperty ;
 	rdfs:domain cnt:System ;	
@@ -62,6 +73,10 @@ cnt:belongsTo a owl:ObjectProperty ;
 cnt:Application a rdfs:Class ;
     rdfs:label 'Application' . 
 
+cnt:Application a rdfs:Class ;
+    rdfs:label 'Application' ;
+	cnt:hasPrimaryKey cnt:ApplicationID .
+
 cnt:ApplicationID a owl:ObjectProperty ;
 	rdfs:Application cnt:Application ;	
 	rdfs:label 'Application ID' .
@@ -80,5 +95,157 @@ cnt:ApplicationKey a owl:ObjectProperty ;
 cnt:belongsTo a owl:ObjectProperty ;
 	rdfs:Application cnt:Application ;	
 	rdfs:label 'belongs to' .
+
+# Executable
+cnt:Executable a rdfs:Class ;
+    rdfs:label 'Executable' . 
+
+cnt:Executable a rdfs:Class ;
+    rdfs:label 'Executable' ;
+	cnt:hasPrimaryKey cnt:ExecutableID .
+
+cnt:ExecutableID a owl:ObjectProperty ;
+	rdfs:Executable cnt:Executable ;	
+	rdfs:label 'Executable ID' .
+
+cnt:ExecutableName a owl:ObjectProperty ;
+	rdfs:Executable cnt:Executable ;	
+	rdfs:label 'Executable Name' .
+
+cnt:ExecutableKey a owl:ObjectProperty ;
+	rdfs:Executable cnt:Executable ;	
+	rdfs:label 'Executable Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:SystemID ;
+	cnt:isIdentifiedBy cnt:ApplicationID ;
+	cnt:isIdentifiedBy cnt:ExecutableID .
+
+cnt:ExecutableKey a owl:ObjectProperty ;
+	rdfs:Executable cnt:Executable ;	
+	rdfs:label 'Executable Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:TechSystemID ;
+	cnt:isIdentifiedBy cnt:TechGroupID ;
+	cnt:isIdentifiedBy cnt:ExecutableID .
+
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:Executable cnt:Executable ;	
+	rdfs:label 'belongs to' .
+
+
+# TechSystem
+cnt:TechSystem a rdfs:Class ;
+    rdfs:label 'TechSystem' . 
+
+cnt:TechSystem a rdfs:Class ;
+    rdfs:label 'TechSystem' ;
+	cnt:hasPrimaryKey cnt:TechSystemID .
+
+cnt:TechSystemID a owl:ObjectProperty ;
+	rdfs:domain cnt:TechSystem ;	
+	rdfs:label 'TechSystem ID' .
+
+cnt:TechSystemName a owl:ObjectProperty ;
+	rdfs:domain cnt:TechSystem ;	
+	rdfs:label 'TechSystem Name' .
+
+cnt:TechSystemKey a owl:ObjectProperty ;
+	rdfs:domain cnt:TechSystem ;	
+	rdfs:label 'TechSystem Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:TechSystemID .
+ 
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:domain cnt:TechSystem ;	
+	rdfs:label 'belongs to' .
+
+# TechGroup
+cnt:TechGroup a rdfs:Class ;
+    rdfs:label 'TechGroup' . 
+
+cnt:TechGroup a rdfs:Class ;
+    rdfs:label 'TechGroup' ;
+	cnt:hasPrimaryKey cnt:TechGroupID .
+
+cnt:TechGroupID a owl:ObjectProperty ;
+	rdfs:TechGroup cnt:TechGroup ;	
+	rdfs:label 'TechGroup ID' .
+
+cnt:TechGroupName a owl:ObjectProperty ;
+	rdfs:TechGroup cnt:TechGroup ;	
+	rdfs:label 'TechGroup Name' .
+
+cnt:TechGroupKey a owl:ObjectProperty ;
+	rdfs:TechGroup cnt:TechGroup ;	
+	rdfs:label 'TechGroup Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:TechSystemID ;
+    cnt:isIdentifiedBy cnt:TechGroupID .
+ 
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:TechGroup cnt:TechGroup ;	
+	rdfs:label 'belongs to' .
+
+# DataSet
+cnt:DataSet a rdfs:Class ;
+    rdfs:label 'DataSet' . 
+
+cnt:DataSet a rdfs:Class ;
+    rdfs:label 'DataSet' ;
+	cnt:hasPrimaryKey cnt:DataSetID .
+
+cnt:DataSetID a owl:ObjectProperty ;
+	rdfs:DataSet cnt:DataSet ;	
+	rdfs:label 'DataSet ID' .
+
+cnt:DataSetName a owl:ObjectProperty ;
+	rdfs:DataSet cnt:DataSet ;	
+	rdfs:label 'DataSet Name' .
+
+cnt:DataSetKey a owl:ObjectProperty ;
+	rdfs:DataSet cnt:DataSet ;	
+	rdfs:label 'DataSet Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:TechSystemID ;
+	cnt:isIdentifiedBy cnt:TechGroupID ;
+	cnt:isIdentifiedBy cnt:DataSetID .
+ 
+cnt:DataSetKey a owl:ObjectProperty ;
+	rdfs:DataSet cnt:DataSet ;	
+	rdfs:label 'DataSet Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:SystemID ;
+	cnt:isIdentifiedBy cnt:ApplicationID ;
+	cnt:isIdentifiedBy cnt:DataSetID .
+
+# DataElement
+cnt:DataElement a rdfs:Class ;
+    rdfs:label 'DataElement' . 
+
+cnt:DataElement a rdfs:Class ;
+    rdfs:label 'DataElement' ;
+	cnt:hasPrimaryKey cnt:DataElementID .
+
+cnt:DataElementID a owl:ObjectProperty ;
+	rdfs:DataElement cnt:DataElement ;	
+	rdfs:label 'DataElement ID' .
+
+cnt:DataElementName a owl:ObjectProperty ;
+	rdfs:DataElement cnt:DataElement ;	
+	rdfs:label 'DataElement Name' .
+
+cnt:DataElementKey a owl:ObjectProperty ;
+	rdfs:DataElement cnt:DataElement ;	
+	rdfs:label 'DataElement Key';
+    cnt:isIdentifiedBy cnt:DomainID ;
+    cnt:isIdentifiedBy cnt:TechSystemID ;
+	cnt:isIdentifiedBy cnt:TechGroupID ;
+	cnt:isIdentifiedBy cnt:DataSetID ;
+	cnt:isIdentifiedBy cnt:DataElementID .
+ 
+cnt:belongsTo a owl:ObjectProperty ;
+	rdfs:DataElement cnt:DataElement ;	
+	rdfs:label 'belongs to' .
+
 
 }
