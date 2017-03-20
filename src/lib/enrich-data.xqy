@@ -3,6 +3,111 @@ import module namespace sem = "http://marklogic.com/semantics"
       at "/MarkLogic/semantics.xqy";
 declare namespace cnt = "https://schema.hsbc-demo.com/ns/content/";
 
+declare function local:enrich-dataElement($doc as element(), $uri as xs:string, $root-node as xs:string)
+{
+ let $uniqueKey as xs:string := $doc/DataElementID
+ let $contentType := 'https://schema.hsbc-demo.com/ns/content/DataElement'
+ let $subject as xs:string := fn:concat($contentType, "/" , $uniqueKey)
+
+ let $dataSetUniqueKey as xs:string := $doc/DataSetID
+ let $dataSetContentType := 'https://schema.hsbc-demo.com/ns/content/DataSet'
+ let $dataSetSubject as xs:string := fn:concat($dataSetContentType, "/" , $dataSetUniqueKey)
+ 
+ let $techGroupUniqueKey as xs:string := $doc/TechGroupID
+ let $techGroupContentType := 'https://schema.hsbc-demo.com/ns/content/TechGroup'
+ let $techGroupSubject as xs:string := fn:concat($techGroupContentType, "/" , $techGroupUniqueKey)
+
+ let $techSysUniqueKey as xs:string := $doc/TechSystemID
+ let $techSysContentType := 'https://schema.hsbc-demo.com/ns/content/TechSystem'
+ let $techSysSubject as xs:string := fn:concat($techSysContentType, "/" , $techSysUniqueKey)
+ 
+ let $domUniqueKey as xs:string := fn:distinct-values($doc/DomainID)
+ let $domContentType := 'https://schema.hsbc-demo.com/ns/content/Domain'
+ let $domSubject as xs:string := fn:concat($domContentType, "/" , $domUniqueKey)
+
+ let $appUniqueKey as xs:string := $doc/ApplicationID
+ let $appContentType := 'https://schema.hsbc-demo.com/ns/content/Application'
+ let $appSubject as xs:string := fn:concat($appContentType, "/" , $appUniqueKey)
+
+ let $sysUniqueKey as xs:string := $doc/SystemID
+ let $sysContentType := 'https://schema.hsbc-demo.com/ns/content/System'
+ let $sysSubject as xs:string := fn:concat($sysContentType, "/" , $sysUniqueKey) 
+  
+ return
+    <sem:triples> {    
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+        sem:iri($contentType)
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasPrimaryKey' ), 
+        xs:string( $uniqueKey )
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasDataSetKey' ), 
+        xs:string( $uniqueKey )
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasDataSetKey' ), 
+        xs:string( $techGroupUniqueKey )
+      ), 
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasDataSetKey' ), 
+        xs:string( $techSysUniqueKey )
+      ), 
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasDataSetKey' ), 
+        xs:string( $sysUniqueKey )
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasDataSetKey' ), 
+        xs:string( $appUniqueKey )
+      ),
+      sem:triple( 
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/hasUri' ), 
+        $uri
+        ),   
+      sem:triple(
+        sem:iri( $subject ), 
+        sem:iri( 'https://schema.hsbc-demo.com/ns/content/belongsTo' ), 
+        sem:iri($techGroupSubject)
+        ),
+      sem:triple(
+        sem:iri( $subject ), 
+        sem:iri( 'http://purl.org/dc/terms/isPartOf' ), 
+        sem:iri( $techGroupUniqueKey )
+        ),
+        sem:triple(
+        sem:iri( $techGroupUniqueKey ), 
+        sem:iri( 'http://purl.org/dc/terms/hasPart' ), 
+        sem:iri( $subject )
+        ),
+      sem:triple(
+        sem:iri( $subject ), 
+        sem:iri( 'http://purl.org/dc/terms/isPartOf' ), 
+        sem:iri( $appUniqueKey )
+        ),
+        sem:triple(
+        sem:iri( $appUniqueKey ), 
+        sem:iri( 'http://purl.org/dc/terms/hasPart' ), 
+        sem:iri( $subject )
+        )                     
+    }
+    </sem:triples>
+};
+
+
+
+
+
 
 declare function local:enrich-dataSet($doc as element(), $uri as xs:string, $root-node as xs:string)
 {
